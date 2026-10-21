@@ -1,3 +1,4 @@
+// models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
@@ -14,13 +15,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Password is required'],
       minlength: [6, 'Password must be at least 6 characters long'],
-      select: false, // Prevents password leaking in random queries
+      select: false, // Hides password from default queries
     },
   },
   { timestamps: true }
 );
 
-// Pre-save middleware: Auto-hashes the password whenever it gets saved or updated
+// Encrypt password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   try {
@@ -32,7 +33,7 @@ userSchema.pre('save', async function (next) {
   }
 });
 
-// Instance method to check password validity securely
+// Decrypt & compare passwords
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
